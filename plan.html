@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ketify — Your 28-Day Keto Program</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0F1410;
+  --surface: #161E18;
+  --surface2: #1D2820;
+  --line: #2A3830;
+  --green: #52B788;
+  --green-dim: #2D6A4F;
+  --sage: #A8C9B0;
+  --cream: #F0EBE0;
+  --muted: #6A8070;
+  --terra: #C4602A;
+  --gold: #D4A853;
+  --white: #EEF4EF;
+  --red: #E07060;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body {
+  font-family:'Instrument Sans',sans-serif;
+  background:var(--bg); color:var(--cream);
+  min-height:100vh; overflow-x:hidden;
+}
+
+/* ─── HEADER ─── */
+.site-header {
+  background:var(--surface);
+  border-bottom:1px solid var(--line);
+  padding:0 20px; height:58px;
+  display:flex; align-items:center; justify-content:space-between;
+  position:sticky; top:0; z-index:100;
+}
+.logo { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--green); }
+.header-tag {
+  font-size:11px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--muted); display:flex; align-items:center; gap:6px;
+}
+.dot-live { width:6px; height:6px; background:var(--green); border-radius:50%; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+/* ─── HERO ─── */
+.hero {
+  background:linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+  border-bottom:1px solid var(--line);
+  padding:40px 20px 36px;
+}
+.hero-inner { max-width:680px; margin:0 auto; }
+.hero-eyebrow {
+  font-size:11px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase;
+  color:var(--green); margin-bottom:14px;
+}
+.hero-h1 {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(28px,6vw,40px); font-weight:900; line-height:1.15;
+  color:var(--white); margin-bottom:10px; letter-spacing:-0.02em;
+}
+.hero-h1 em { color:var(--green); font-style:normal; }
+.hero-sub { font-size:14px; color:var(--muted); line-height:1.6; margin-bottom:28px; }
+
+.hero-stats {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
+}
+@media(max-width:480px){ .hero-stats { grid-template-columns:repeat(2,1fr); } }
+.stat-card {
+  background:var(--bg); border:1px solid var(--line); border-radius:12px;
+  padding:14px 12px;
+}
+.stat-label { font-size:10px; text-transform:uppercase; letter-spacing:0.09em; color:var(--muted); margin-bottom:5px; }
+.stat-val { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--white); }
+.stat-val small { font-size:12px; color:var(--muted); font-family:'Instrument Sans',sans-serif; }
+.stat-note { font-size:11px; color:var(--muted); margin-top:3px; }
+
+/* ─── MACROS BAR ─── */
+.macro-band {
+  background:var(--surface2); border-bottom:1px solid var(--line);
+  padding:20px; overflow-x:auto;
+}
+.macro-band-inner {
+  max-width:680px; margin:0 auto;
+  display:flex; gap:10px; align-items:center;
+}
+.macro-pill {
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface); border:1px solid var(--line); border-radius:10px;
+  padding:12px 16px; flex-shrink:0;
+}
+.mp-bar { width:4px; height:36px; border-radius:2px; }
+.mp-label { font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
+.mp-val { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; color:var(--white); }
+.mp-pct { font-size:12px; color:var(--muted); }
+.cal-pill {
+  margin-left:auto; background:var(--green-dim); border:1px solid var(--green);
+  border-radius:10px; padding:12px 20px; flex-shrink:0; text-align:center;
+}
+.cal-big { font-family:'Playfair Display',serif; font-size:26px; font-weight:900; color:var(--white); }
+.cal-lbl { font-size:10px; text-transform:uppercase; letter-spacing:0.09em; color:var(--sage); }
+
+/* ─── MAIN LAYOUT ─── */
+.main { max-width:680px; margin:0 auto; padding:32px 20px 80px; }
+
+/* ─── WEEK TABS ─── */
+.week-tabs {
+  display:flex; gap:0; margin-bottom:28px;
+  border:1px solid var(--line); border-radius:12px; overflow:hidden; flex-shrink:0;
+}
+.wtab {
+  flex:1; padding:11px 4px; background:var(--surface); border:none; cursor:pointer;
+  font-family:'Instrument Sans',sans-serif; font-size:13px; font-weight:500;
+  color:var(--muted); transition:all 0.15s; border-right:1px solid var(--line);
+  text-align:center;
+}
+.wtab:last-child { border-right:none; }
+.wtab:hover { background:var(--surface2); color:var(--cream); }
+.wtab.active { background:var(--green-dim); color:var(--white); font-weight:700; }
+
+/* ─── WEEK PANEL ─── */
+.week-panel { display:none; }
+.week-panel.active { display:block; }
+
+/* ─── DAY CARD ─── */
+.day-card {
+  background:var(--surface); border:1px solid var(--line); border-radius:14px;
+  margin-bottom:12px; overflow:hidden;
+}
+.day-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 18px; cursor:pointer;
+  transition:background 0.15s;
+  border-bottom:1px solid transparent;
+  user-select:none;
+}
+.day-header:hover { background:var(--surface2); }
+.day-header.open { border-bottom-color:var(--line); }
+.day-num {
+  font-family:'Playfair Display',serif;
+  font-size:15px; font-weight:700; color:var(--white);
+}
+.day-preview { font-size:12px; color:var(--muted); margin-top:2px; }
+.day-cal { font-size:12px; color:var(--sage); font-weight:600; flex-shrink:0; }
+.day-chevron { color:var(--muted); font-size:12px; transition:transform 0.2s; flex-shrink:0; margin-left:10px; }
+.day-header.open .day-chevron { transform:rotate(180deg); }
+
+.day-body { display:none; padding:16px 18px; }
+.day-body.open { display:block; }
+
+.meal-row {
+  display:flex; gap:12px; align-items:flex-start;
+  padding:10px 0; border-bottom:1px solid var(--line);
+}
+.meal-row:last-child { border-bottom:none; padding-bottom:0; }
+.meal-type {
+  font-size:10px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+  width:70px; flex-shrink:0; padding-top:2px;
+}
+.meal-type.breakfast { color:var(--gold); }
+.meal-type.lunch { color:var(--green); }
+.meal-type.dinner { color:#A78BFA; }
+.meal-type.snack { color:var(--terra); }
+.meal-info { flex:1; }
+.meal-name { font-size:14px; font-weight:600; color:var(--white); line-height:1.3; }
+.meal-desc { font-size:12px; color:var(--muted); margin-top:2px; line-height:1.4; }
+.meal-kcal { font-size:12px; color:var(--muted); flex-shrink:0; padding-top:2px; }
+
+/* ─── SECTION TITLES ─── */
+.section-title {
+  font-family:'Playfair Display',serif;
+  font-size:20px; font-weight:700; color:var(--white);
+  margin-bottom:6px;
+}
+.section-sub { font-size:13px; color:var(--muted); margin-bottom:20px; }
+
+/* ─── SHOPPING LIST ─── */
+.shop-card {
+  background:var(--surface); border:1px solid var(--line); border-radius:14px;
+  padding:22px 20px; margin-bottom:28px;
+}
+.shop-h {
+  font-family:'Playfair Display',serif;
+  font-size:18px; font-weight:700; color:var(--white); margin-bottom:4px;
+}
+.shop-sub { font-size:13px; color:var(--muted); margin-bottom:20px; }
+.shop-category { margin-bottom:18px; }
+.shop-cat-label {
+  font-size:10px; text-transform:uppercase; letter-spacing:0.1em;
+  color:var(--green); font-weight:700; margin-bottom:10px;
+  padding-bottom:6px; border-bottom:1px solid var(--line);
+}
+.shop-items { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.shop-item {
+  display:flex; align-items:center; gap:8px;
+  font-size:13px; color:var(--cream); padding:8px 10px;
+  background:var(--bg); border-radius:8px;
+  cursor:pointer; transition:background 0.15s;
+  border:1px solid transparent;
+}
+.shop-item:hover { background:var(--surface2); }
+.shop-item.checked { opacity:0.45; text-decoration:line-through; color:var(--muted); }
+.shop-check {
+  width:16px; height:16px; border-radius:4px; border:1.5px solid var(--line);
+  flex-shrink:0; transition:all 0.15s; display:flex; align-items:center; justify-content:center;
+}
+.shop-item.checked .shop-check { background:var(--green-dim); border-color:var(--green); }
+.shop-item.checked .shop-check::after { content:'✓'; font-size:10px; color:var(--green); }
+
+/* ─── QUICK START ─── */
+.qs-card {
+  background:var(--green-dim); border:1px solid var(--green); border-radius:14px;
+  padding:22px 20px; margin-bottom:28px;
+}
+.qs-h { font-family:'Playfair Display',serif; font-size:18px; font-weight:700; color:var(--white); margin-bottom:4px; }
+.qs-sub { font-size:13px; color:var(--sage); margin-bottom:18px; }
+.qs-steps { display:flex; flex-direction:column; gap:12px; }
+.qs-step { display:flex; gap:12px; align-items:flex-start; }
+.qs-num {
+  width:24px; height:24px; border-radius:50%; background:var(--green);
+  color:#0F1410; font-size:12px; font-weight:800; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+}
+.qs-body b { font-size:14px; font-weight:700; color:var(--white); display:block; margin-bottom:1px; }
+.qs-body span { font-size:12px; color:var(--sage); line-height:1.4; }
+
+/* ─── KETO RULES ─── */
+.rules-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:28px; }
+@media(max-width:400px){ .rules-grid { grid-template-columns:1fr; } }
+.rule-card {
+  background:var(--surface); border:1px solid var(--line); border-radius:12px;
+  padding:16px 14px;
+}
+.rule-icon { font-size:20px; margin-bottom:8px; }
+.rule-title { font-size:13px; font-weight:700; color:var(--white); margin-bottom:4px; }
+.rule-text { font-size:12px; color:var(--muted); line-height:1.5; }
+
+/* ─── FADE ─── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.fade-in { animation:fadeUp 0.4s ease both; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">Ketify</div>
+  <div class="header-tag"><div class="dot-live"></div>Your plan · 28 days</div>
+</header>
+
+<!-- HERO -->
+<div class="hero fade-in">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Personalized plan · Ready to use</div>
+    <h1 class="hero-h1">Your <em>28-day keto plan</em><br>starts today</h1>
+    <p class="hero-sub">Built around your body, your schedule, and your starting point. Every meal, every day.</p>
+    <div class="hero-stats">
+      <div class="stat-card">
+        <div class="stat-label">Starting weight</div>
+        <div class="stat-val" id="s-wnow">— <small>lbs</small></div>
+        <div class="stat-note" id="s-bmi">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Day 28 goal</div>
+        <div class="stat-val" id="s-w28">— <small>lbs</small></div>
+        <div class="stat-note" id="s-loss">est. loss</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Full goal</div>
+        <div class="stat-val" id="s-wgoal">— <small>lbs</small></div>
+        <div class="stat-note" id="s-weeks">est. timeline</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Daily calories</div>
+        <div class="stat-val" id="s-cal">—</div>
+        <div class="stat-note">personalized target</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MACROS BAR -->
+<div class="macro-band fade-in">
+  <div class="macro-band-inner">
+    <div class="macro-pill">
+      <div class="mp-bar" style="background:#52B788"></div>
+      <div>
+        <div class="mp-label">Fat · 70%</div>
+        <div class="mp-val" id="m-fat">—</div>
+        <div class="mp-pct">per day</div>
+      </div>
+    </div>
+    <div class="macro-pill">
+      <div class="mp-bar" style="background:#F4A261"></div>
+      <div>
+        <div class="mp-label">Protein · 25%</div>
+        <div class="mp-val" id="m-pro">—</div>
+        <div class="mp-pct">per day</div>
+      </div>
+    </div>
+    <div class="macro-pill">
+      <div class="mp-bar" style="background:#A78BFA"></div>
+      <div>
+        <div class="mp-label">Net carbs · 5%</div>
+        <div class="mp-val" id="m-car">—</div>
+        <div class="mp-pct">per day</div>
+      </div>
+    </div>
+    <div class="cal-pill">
+      <div class="cal-lbl">Daily target</div>
+      <div class="cal-big" id="m-cal">—</div>
+      <div class="cal-lbl">kcal</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- QUICK START -->
+  <div class="qs-card fade-in">
+    <div class="qs-h">Start here — Day 1 checklist</div>
+    <div class="qs-sub">Three things to do today before your first meal.</div>
+    <div class="qs-steps">
+      <div class="qs-step"><div class="qs-num">1</div><div class="qs-body"><b>Clear the carbs</b><span>Remove bread, pasta, rice, cereals, and sugary drinks from sight. Out of sight, out of mind.</span></div></div>
+      <div class="qs-step"><div class="qs-num">2</div><div class="qs-body"><b>Shop for Week 1</b><span>Use the shopping list below. Takes 30 minutes. Covers every meal for 7 days.</span></div></div>
+      <div class="qs-step"><div class="qs-num">3</div><div class="qs-body"><b>Drink more water</b><span>Aim for 2.5–3L today. Keto flushes electrolytes early — this reduces "keto flu" symptoms.</span></div></div>
+    </div>
+  </div>
+
+  <!-- WEEK TABS -->
+  <div class="section-title" style="margin-bottom:14px">Your 28-Day Meal Plan</div>
+  <div class="week-tabs">
+    <button class="wtab active" onclick="showWeek(1,this)">Week 1</button>
+    <button class="wtab" onclick="showWeek(2,this)">Week 2</button>
+    <button class="wtab" onclick="showWeek(3,this)">Week 3</button>
+    <button class="wtab" onclick="showWeek(4,this)">Week 4</button>
+  </div>
+
+  <!-- WEEK PANELS -->
+  <div id="week1" class="week-panel active"></div>
+  <div id="week2" class="week-panel"></div>
+  <div id="week3" class="week-panel"></div>
+  <div id="week4" class="week-panel"></div>
+
+  <!-- SHOPPING LIST -->
+  <div class="shop-card fade-in" id="shop-section">
+    <div class="shop-h">Week 1 Shopping List</div>
+    <div class="shop-sub">Tap items to check them off as you shop.</div>
+    <div id="shop-list"></div>
+  </div>
+
+  <!-- KETO RULES -->
+  <div class="section-title">The four rules that matter</div>
+  <div class="section-sub">Everything else is noise. These are non-negotiable on keto.</div>
+  <div class="rules-grid">
+    <div class="rule-card">
+      <div class="rule-icon">🚫</div>
+      <div class="rule-title">Keep carbs under <span id="r-carblimit">25g</span>/day</div>
+      <div class="rule-text">This is the threshold for ketosis. One slice of bread breaks it. Read labels.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-icon">🥑</div>
+      <div class="rule-title">Fat is your fuel now</div>
+      <div class="rule-text">Don't fear fat. Avocado, olive oil, eggs, and fatty cuts are your staples.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-icon">💧</div>
+      <div class="rule-title">Hydrate + electrolytes</div>
+      <div class="rule-text">Add salt to food. The "keto flu" is almost always dehydration and low sodium.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-icon">📅</div>
+      <div class="rule-title">Consistency beats perfection</div>
+      <div class="rule-text">One bad meal won't break you. Getting kicked out of ketosis and back in repeatedly does.</div>
+    </div>
+  </div>
+
+
+</main>
+
+<script>
+// ─── READ DATA: localStorage first, URL params as fallback ───
+// localStorage is set by the quiz before redirecting to Payhip
+// URL params are the fallback in case localStorage was cleared
+let _src = {};
+try {
+  const saved = localStorage.getItem('ketify_plan');
+  if(saved) { _src = JSON.parse(saved); localStorage.removeItem('ketify_plan'); }
+} catch(e) {}
+const P = Object.fromEntries(new URLSearchParams(window.location.search));
+const get = (key, fallback) => _src[key] !== undefined ? _src[key] : (P[key] || fallback);
+
+const w   = +get('w',   185);
+const wg  = +get('wg',  160);
+const hft = +get('hft', 5);
+const hin = +get('hin', 7);
+const sex =  get('sex', 'f');
+const age = +get('age', 35);
+const act = +get('act', 1.375);
+const meals = get('meals', '3');
+const diet  = get('diet',  'none');
+const budget= get('budget','mid');
+const cal  = +get('cal',  1650);
+const fat  = +get('fat',  116);
+const pro  = +get('pro',  103);
+const car  = +get('car',  21);
+const w28  = +get('w28',  Math.round(w - (550/3500)*28));
+const weeks= +get('weeks', 8);
+
+// ─── FILL STATS ───
+const hCm = (hft*12+hin)*2.54;
+const wKg = w*0.453592;
+const bmi = (wKg/((hCm/100)**2)).toFixed(1);
+const bmiCat = bmi<18.5?'Underweight':bmi<25?'Healthy':bmi<30?'Overweight':'Obese';
+const lostEst = (w-w28).toFixed(1);
+const dpd = 550/3500;
+
+document.getElementById('s-wnow').innerHTML = w+' <small>lbs</small>';
+document.getElementById('s-bmi').textContent = 'BMI '+bmi+' · '+bmiCat;
+document.getElementById('s-w28').innerHTML = w28+' <small>lbs</small>';
+document.getElementById('s-loss').textContent = '−'+lostEst+' lbs est.';
+document.getElementById('s-wgoal').innerHTML = wg+' <small>lbs</small>';
+document.getElementById('s-weeks').textContent = weeks+' weeks est.';
+document.getElementById('s-cal').textContent = cal.toLocaleString();
+document.getElementById('m-fat').textContent = fat+'g';
+document.getElementById('m-pro').textContent = pro+'g';
+document.getElementById('m-car').textContent = car+'g';
+document.getElementById('m-cal').textContent = cal.toLocaleString();
+document.getElementById('r-carblimit').textContent = car+'g';
+
+// ─── MEAL DATABASE ───
+// filtered/selected based on diet and budget
+const MB = {
+  breakfasts: [
+    { name:'Scrambled eggs with avocado', desc:'3 eggs, ½ avocado, olive oil, salt & pepper', kcal:420 },
+    { name:'Bacon & egg cups', desc:'3 strips bacon, 2 eggs baked in muffin tin', kcal:380 },
+    { name:'Smoked salmon & cream cheese roll-ups', desc:'3 oz salmon, 2 tbsp cream cheese, capers', kcal:360, dairy:true },
+    { name:'Keto bulletproof coffee + boiled eggs', desc:'Coffee with MCT oil & butter, 2 hard-boiled eggs', kcal:350, dairy:true },
+    { name:'Fried eggs with spinach & cheese', desc:'2 eggs, 1 cup spinach sautéed in butter, 1 oz cheddar', kcal:390, dairy:true },
+    { name:'Avocado egg bake', desc:'Halved avocado with egg baked inside, topped with chili flakes', kcal:310 },
+    { name:'Greek yogurt with walnuts', desc:'Full-fat Greek yogurt, 1 oz walnuts, dash of cinnamon', kcal:330, dairy:true },
+    { name:'Sausage & veggie scramble', desc:'2 sausage links, bell pepper, zucchini, 2 eggs', kcal:440 },
+    { name:'Coconut chia pudding', desc:'Full-fat coconut milk, chia seeds, few drops vanilla', kcal:350 },
+    { name:'Turkey & cheese roll-ups', desc:'4 slices turkey breast, 2 slices provolone, mustard', kcal:280, dairy:true },
+    { name:'Almond flour pancakes', desc:'Almond flour, eggs, cream cheese, sugar-free syrup', kcal:400, dairy:true },
+    { name:'Soft-boiled eggs & sliced cucumber', desc:'3 soft-boiled eggs, cucumber, sea salt, olive oil drizzle', kcal:290 },
+    { name:'Prosciutto-wrapped melon (minimal)', desc:'Prosciutto, 3 small cubes cantaloupe, fresh mint', kcal:310 },
+    { name:'Tuna salad lettuce cups', desc:'Canned tuna, mayo, celery, served in romaine leaves', kcal:320 },
+  ],
+  lunches: [
+    { name:'Chicken Caesar salad (no croutons)', desc:'Grilled chicken, romaine, parmesan, Caesar dressing', kcal:480, dairy:true },
+    { name:'Zucchini noodles with pesto & chicken', desc:'Spiralized zucchini, basil pesto, 4oz grilled chicken', kcal:460 },
+    { name:'Cobb salad', desc:'Chicken, bacon, egg, avocado, blue cheese, romaine', kcal:510, dairy:true },
+    { name:'BLT lettuce wraps', desc:'Bacon, tomato, mayo, wrapped in large romaine leaves', kcal:380 },
+    { name:'Tuna-stuffed avocado', desc:'Avocado half filled with tuna, mayo, celery, lemon', kcal:430 },
+    { name:'Ground beef stir-fry', desc:'Ground beef with broccoli, soy sauce (tamari), sesame oil', kcal:490 },
+    { name:'Chicken thighs with cauliflower rice', desc:'Bone-in chicken thighs, cauliflower rice with butter', kcal:520, dairy:true },
+    { name:'Shrimp & avocado bowl', desc:'Sautéed shrimp, sliced avocado, cucumber, olive oil', kcal:420 },
+    { name:'Antipasto plate', desc:'Salami, olives, artichoke hearts, mozzarella, cherry tomatoes', kcal:470, dairy:true },
+    { name:'Turkey burger (no bun)', desc:'Turkey patty, lettuce, tomato, mayo, pickles', kcal:410 },
+    { name:'Egg salad with cucumber slices', desc:'4 eggs, mayo, mustard, dill, served on cucumber rounds', kcal:380 },
+    { name:'Salmon avocado salad', desc:'Canned salmon, avocado, greens, olive oil & lemon', kcal:460 },
+    { name:'Caprese salad with grilled chicken', desc:'Mozzarella, tomato, basil, grilled chicken breast, EVOO', kcal:490, dairy:true },
+    { name:'Keto soup: sausage & spinach', desc:'Italian sausage, chicken broth, spinach, heavy cream', kcal:440, dairy:true },
+  ],
+  dinners: [
+    { name:'Pan-seared salmon with asparagus', desc:'6oz salmon fillet, asparagus roasted in olive oil, lemon', kcal:520 },
+    { name:'Ribeye steak with broccoli', desc:'6oz ribeye, steamed broccoli with butter and garlic', kcal:620, dairy:true },
+    { name:'Chicken thighs with roasted brussels sprouts', desc:'Crispy-skin chicken thighs, brussels sprouts with bacon', kcal:560 },
+    { name:'Shrimp scampi (zucchini noodles)', desc:'Shrimp, butter, garlic, white wine, zucchini noodles', kcal:480, dairy:true },
+    { name:'Baked cod with spinach', desc:'Cod fillet, spinach sautéed in garlic & olive oil, lemon', kcal:390 },
+    { name:'Ground beef taco bowls', desc:'Spiced ground beef, sour cream, shredded cheese, lettuce, salsa', kcal:540, dairy:true },
+    { name:'Pork tenderloin with green beans', desc:'Herb-crusted pork tenderloin, green beans with almonds', kcal:500 },
+    { name:'Lamb chops with cauliflower mash', desc:'Lamb chops, cauliflower mashed with butter & cream', kcal:590, dairy:true },
+    { name:'Keto chili', desc:'Ground beef, jalapeños, tomato, cumin — no beans', kcal:490 },
+    { name:'Baked chicken wings (dry rub)', desc:'Wings with paprika, garlic, cayenne, roasted until crispy', kcal:510 },
+    { name:'Stuffed bell peppers (no rice)', desc:'Peppers filled with ground turkey, cheese, tomato, spices', kcal:470, dairy:true },
+    { name:'Mahi-mahi with mango avocado salsa', desc:'Grilled mahi-mahi, small serving of mango (keto portion), avocado', kcal:440 },
+    { name:'Egg & vegetable frittata', desc:'6 eggs, zucchini, bell pepper, feta, oven-baked', kcal:420, dairy:true },
+    { name:'Duck breast with roasted mushrooms', desc:'Pan-seared duck breast, cremini mushrooms, thyme, butter', kcal:550, dairy:true },
+  ],
+  snacks: [
+    { name:'Cheese & salami', desc:'1oz hard cheese + 4 slices salami', kcal:220, dairy:true },
+    { name:'Almonds & macadamias', desc:'1oz mixed nuts', kcal:180 },
+    { name:'Peanut butter celery sticks', desc:'2 stalks celery, 1.5 tbsp natural peanut butter', kcal:170 },
+    { name:'Hard-boiled eggs (2)', desc:'With sea salt and paprika', kcal:140 },
+    { name:'Avocado with sea salt', desc:'½ avocado, sea salt, lime juice', kcal:160 },
+    { name:'Beef jerky (sugar-free)', desc:'1oz, check label: 0g added sugar', kcal:120 },
+    { name:'Cream cheese stuffed jalapeños', desc:'4 mini peppers with cream cheese', kcal:190, dairy:true },
+    { name:'Olives & cucumber', desc:'10 olives, sliced cucumber, olive oil', kcal:110 },
+  ]
+};
+
+// ─── FILTER BY DIET ───
+function filterMeals(arr){
+  return arr.filter(m => {
+    if(diet==='nodairy' && m.dairy) return false;
+    if(diet==='fish'){
+      const fishBlock = ['ribeye','lamb chop','ground beef','pork','duck','beef jerky','salami'];
+      const n = m.name.toLowerCase();
+      if(fishBlock.some(b => n.includes(b))) return false;
+    }
+    return true;
+  });
+}
+
+const B = filterMeals(MB.breakfasts);
+const L = filterMeals(MB.lunches);
+const D = filterMeals(MB.dinners);
+const S = filterMeals(MB.snacks);
+
+// ─── DISTRIBUTE MEALS OVER 28 DAYS ───
+// Rotate through arrays with no repeat within 5 days
+function pickMeal(arr, dayIdx, offset=0){
+  const i = (dayIdx + offset) % arr.length;
+  return arr[i];
+}
+
+const DAYS = [];
+for(let d=0;d<28;d++){
+  const day = { day: d+1 };
+  day.breakfast = pickMeal(B, d);
+  day.lunch     = pickMeal(L, d, 2);
+  day.dinner    = pickMeal(D, d, 4);
+  if(meals==='4') day.snack = pickMeal(S, d);
+  if(meals==='2'){ delete day.breakfast; }
+  DAYS.push(day);
+}
+
+// ─── RENDER WEEKS ───
+function showWeek(n, btn){
+  document.querySelectorAll('.week-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.wtab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('week'+n).classList.add('active');
+  btn.classList.add('active');
+}
+
+const dayNames = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+function renderWeeks(){
+  // ── PROGRESSIVE UNLOCK ──
+  // Store first access date in localStorage.
+  // Calculate days elapsed → unlock the corresponding week.
+  // Week 1: days 1-7 | Week 2: days 8-14 | Week 3: days 15-21 | Week 4: days 22-28
+
+  let startDate;
+  try {
+    const stored = localStorage.getItem('ketify_start');
+    if(stored){
+      startDate = new Date(stored);
+    } else {
+      startDate = new Date();
+      localStorage.setItem('ketify_start', startDate.toISOString());
+    }
+  } catch(e){
+    startDate = new Date();
+  }
+
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const daysElapsed = Math.floor((new Date() - startDate) / msPerDay);
+  // Days elapsed 0-6 = week 1 unlocked, 7-13 = weeks 1-2, etc.
+  const weeksUnlocked = Math.min(Math.floor(daysElapsed / 7) + 1, 4);
+  const daysUnlocked = weeksUnlocked * 7; // max day number accessible
+
+  for(let w=1;w<=4;w++){
+    const panel = document.getElementById('week'+w);
+    const days = DAYS.slice((w-1)*7, w*7);
+    const weekUnlocked = w <= weeksUnlocked;
+
+    if(!weekUnlocked){
+      // Entire week is locked
+      const unlockDay = (w-1)*7 + 1;
+      const daysLeft = unlockDay - daysElapsed;
+      panel.innerHTML = `
+        <div style="background:var(--sur);border:1px solid var(--line);border-radius:14px;padding:36px 20px;text-align:center">
+          <div style="font-size:32px;margin-bottom:14px">🔒</div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--cream);margin-bottom:8px">Week ${w} unlocks soon</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6;max-width:280px;margin:0 auto">
+            Your Week ${w} meals unlock automatically on day ${unlockDay} of your plan.<br>Keep going — you're building the habit.
+          </div>
+        </div>`;
+      continue;
+    }
+
+    // Week is unlocked — render normally
+    panel.innerHTML = days.map((day, i) => {
+      const dayName = dayNames[i];
+      return `
+      <div class="day-card">
+        <div class="day-header" onclick="toggleDay(this)">
+          <div>
+            <div class="day-num">Day ${day.day} — ${dayName}</div>
+            <div class="day-preview">Dinner: ${day.dinner.name}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="day-cal">${cal} kcal</div>
+            <div class="day-chevron">▼</div>
+          </div>
+        </div>
+        <div class="day-body">
+          ${day.breakfast ? `
+          <div class="meal-row">
+            <div class="meal-type breakfast">Breakfast</div>
+            <div class="meal-info"><div class="meal-name">${day.breakfast.name}</div><div class="meal-desc">${day.breakfast.desc}</div></div>
+            <div class="meal-kcal">${day.breakfast.kcal}</div>
+          </div>` : ''}
+          <div class="meal-row">
+            <div class="meal-type lunch">Lunch</div>
+            <div class="meal-info"><div class="meal-name">${day.lunch.name}</div><div class="meal-desc">${day.lunch.desc}</div></div>
+            <div class="meal-kcal">${day.lunch.kcal}</div>
+          </div>
+          <div class="meal-row">
+            <div class="meal-type dinner">Dinner</div>
+            <div class="meal-info"><div class="meal-name">${day.dinner.name}</div><div class="meal-desc">${day.dinner.desc}</div></div>
+            <div class="meal-kcal">${day.dinner.kcal}</div>
+          </div>
+          ${day.snack ? `
+          <div class="meal-row">
+            <div class="meal-type snack">Snack</div>
+            <div class="meal-info"><div class="meal-name">${day.snack.name}</div><div class="meal-desc">${day.snack.desc}</div></div>
+            <div class="meal-kcal">${day.snack.kcal}</div>
+          </div>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+
+    // Open first day of week 1 automatically
+    if(w===1){
+      const first = panel.querySelector('.day-header');
+      if(first){ first.classList.add('open'); first.nextElementSibling.classList.add('open'); }
+    }
+  }
+}
+
+
+
+function toggleDay(header){
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+renderWeeks();
+
+// ─── SHOPPING LIST ───
+const shopData = {
+  'Proteins': diet==='fish'
+    ? ['Salmon (2 lbs)','Shrimp (1 lb)','Canned tuna (4 cans)','Eggs (2 dozen)','Canned sardines (2 cans)']
+    : ['Ground beef 80/20 (2 lbs)','Chicken thighs (2 lbs)','Salmon fillets (1 lb)','Eggs (2 dozen)','Bacon (1 pack)','Sausage links (1 pack)'],
+  'Fats & Oils': diet==='nodairy'
+    ? ['Avocados (6)','Olive oil (1 bottle)','Coconut oil (1 jar)','Almonds (1 bag)','Macadamia nuts (1 bag)']
+    : ['Avocados (6)','Olive oil (1 bottle)','Butter (1 lb)','Heavy cream (1 pint)','Cream cheese (8 oz)'],
+  'Vegetables': [
+    'Broccoli (2 heads)','Zucchini (3)','Spinach (2 bags)','Romaine lettuce (2 heads)',
+    'Cauliflower (1 head)','Asparagus (1 bunch)','Bell peppers (3)','Cucumber (2)'
+  ],
+  'Pantry': [
+    'Sea salt','Black pepper','Garlic (1 head)','Lemon (4)','Paprika',
+    budget==='low'?'Dijon mustard':'Soy sauce / Tamari',
+    'Cumin','Chili flakes'
+  ]
+};
+
+function renderShop(){
+  const container = document.getElementById('shop-list');
+  container.innerHTML = Object.entries(shopData).map(([cat, items]) => `
+    <div class="shop-category">
+      <div class="shop-cat-label">${cat}</div>
+      <div class="shop-items">
+        ${items.map((item,i) => `
+          <div class="shop-item" id="si${cat}${i}" onclick="toggleItem(this)">
+            <div class="shop-check"></div>
+            <span>${item}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleItem(el){ el.classList.toggle('checked'); }
+
+renderShop();
+</script>
+</body>
+</html>
