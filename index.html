@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Ketify — Your Personalized Keto Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=Instrument+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root {
+  --cream: #F5F0E8;
+  --cream-dark: #EDE8DC;
+  --forest: #1C3829;
+  --forest-mid: #2E5A40;
+  --sage: #6B9E78;
+  --sage-light: #A8C9B0;
+  --terra: #C4602A;
+  --terra-light: #F0D0BE;
+  --ink: #1A1A16;
+  --muted: #7A7A6E;
+  --line: #DDD8CC;
+  --white: #FDFCF9;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Instrument Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ─── TOP BAR ─── */
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  background: var(--cream);
+  border-bottom: 1px solid var(--line);
+  padding: 0 20px;
+  height: 56px;
+  display: flex; align-items: center; gap: 16px;
+}
+.wordmark {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px; font-weight: 700;
+  color: var(--forest);
+  letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+.progress-rail { flex: 1; height: 2px; background: var(--line); }
+.progress-car {
+  height: 100%; background: var(--forest);
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  width: 8%;
+}
+.step-counter { font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+
+/* ─── SCREENS ─── */
+.screen { display: none; min-height: 100vh; padding-top: 56px; }
+.screen.active { display: block; }
+
+/* ─── QUIZ LAYOUT ─── */
+.q-wrap {
+  max-width: 520px; margin: 0 auto;
+  padding: 44px 22px 110px;
+}
+.q-eyebrow {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.q-eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.q-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(24px, 6vw, 36px); font-weight: 700;
+  line-height: 1.2; color: var(--ink);
+  margin-bottom: 10px; letter-spacing: -0.02em;
+}
+.q-hint { font-size: 14px; color: var(--muted); margin-bottom: 36px; line-height: 1.55; }
+
+/* ─── OPTIONS ─── */
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opts-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.opt {
+  display: flex; align-items: center; gap: 14px;
+  padding: 16px 18px;
+  background: var(--white);
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  text-align: left; width: 100%;
+  font-family: 'Instrument Sans', sans-serif;
+  position: relative;
+}
+.opt:hover { border-color: var(--sage); background: #F8FBF8; }
+.opt:active { transform: scale(0.99); }
+.opt.sel {
+  border-color: var(--forest);
+  background: var(--forest);
+  color: white;
+}
+.opt-em { font-size: 20px; flex-shrink: 0; width: 26px; text-align: center; }
+.opt-body { flex: 1; }
+.opt-body b { display: block; font-size: 15px; font-weight: 600; line-height: 1.3; }
+.opt-body small { font-size: 12px; opacity: 0.6; }
+.opt.sel .opt-body small { opacity: 0.7; }
+.opt-dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1.5px solid var(--line); flex-shrink: 0;
+  transition: all 0.15s;
+}
+.opt.sel .opt-dot { background: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.5); }
+
+/* 2col variant */
+.opts-2col .opt { flex-direction: column; align-items: flex-start; gap: 6px; padding: 18px 16px; }
+
+/* ─── INPUTS ─── */
+.inp-group { display: flex; flex-direction: column; gap: 14px; }
+.inp-row { display: flex; gap: 10px; }
+.inp-wrap { flex: 1; }
+.inp-wrap label {
+  display: block; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 7px;
+}
+.inp {
+  width: 100%; padding: 14px 46px 14px 16px;
+  border: 1.5px solid var(--line); border-radius: 10px;
+  font-size: 20px; font-weight: 600;
+  font-family: 'Playfair Display', serif;
+  color: var(--ink); background: var(--white);
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+.inp:focus { outline: none; border-color: var(--forest); }
+.inp-unit {
+  position: absolute; right: 14px; bottom: 16px;
+  font-size: 12px; color: var(--muted); font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.inp-wrap-rel { position: relative; }
+
+/* ─── STICKY CTA ─── */
+.sticky-cta {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  padding: 12px 22px 28px;
+  background: linear-gradient(to top, var(--cream) 75%, transparent);
+}
+.btn {
+  display: block; width: 100%; max-width: 520px; margin: 0 auto;
+  padding: 17px 24px;
+  background: var(--forest); color: white;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 15px; font-weight: 600;
+  border: none; border-radius: 12px; cursor: pointer;
+  transition: background 0.15s, transform 0.1s, opacity 0.15s;
+  letter-spacing: 0.01em;
+}
+.btn:hover { background: var(--forest-mid); }
+.btn:active { transform: scale(0.99); }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+.btn sub { display: block; font-size: 12px; font-weight: 400; opacity: 0.7; margin-top: 2px; }
+
+/* ─── LOADING ─── */
+#screen-loading {
+  background: var(--forest);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 1; transition: opacity 0.5s ease;
+}
+#screen-loading.active { display: flex; }
+#screen-loading.fading { opacity: 0; pointer-events: none; }
+.ld-inner { text-align: center; padding: 40px 32px; max-width: 340px; }
+.ld-wordmark {
+  font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700;
+  color: var(--sage-light); margin-bottom: 56px;
+}
+.ld-pct {
+  font-family: 'Playfair Display', serif;
+  font-size: 72px; font-weight: 900; color: white;
+  line-height: 1; margin-bottom: 10px;
+}
+.ld-track { width: 100%; height: 1px; background: rgba(255,255,255,0.15); margin-bottom: 24px; }
+.ld-fill { height: 100%; background: var(--sage-light); width: 0; transition: width 0.25s ease; }
+.ld-msg { font-size: 13px; color: rgba(255,255,255,0.45); transition: opacity 0.3s; }
+
+/* ─── RESULT ─── */
+#screen-result { opacity: 0; transition: opacity 0.5s ease; }
+#screen-result.active { display: block; }
+#screen-result.visible { opacity: 1; }
+.res-wrap { max-width: 600px; margin: 0 auto; padding: 32px 20px 130px; }
+
+/* Hero band */
+.res-hero {
+  background: var(--forest);
+  border-radius: 18px; padding: 30px 26px;
+  color: white; margin-bottom: 20px;
+  position: relative; overflow: hidden;
+}
+.res-hero::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  background: radial-gradient(circle, rgba(107,158,120,0.25) 0%, transparent 70%);
+}
+.res-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--sage-light);
+  margin-bottom: 16px;
+}
+.res-tag::before { content: '●'; font-size: 7px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.res-h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(26px,6vw,36px); font-weight: 900;
+  line-height: 1.15; margin-bottom: 10px;
+}
+.res-h1 em { color: var(--sage-light); font-style: normal; }
+.res-sub { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+
+/* Before / After */
+.ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.ba-card {
+  border-radius: 14px; padding: 20px 16px;
+  border: 1.5px solid var(--line); background: var(--white);
+  position: relative;
+}
+.ba-card.after { border-color: var(--sage); background: #F2F8F3; }
+.ba-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 12px;
+}
+.ba-card.before .ba-eyebrow { color: var(--muted); }
+.ba-card.after .ba-eyebrow { color: var(--forest-mid); }
+.ba-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px; font-weight: 900; line-height: 1;
+}
+.ba-card.before .ba-num { color: var(--ink); }
+.ba-card.after .ba-num { color: var(--forest); }
+.ba-unit { font-size: 14px; font-weight: 500; }
+.ba-detail { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.4; }
+.ba-pill {
+  position: absolute; top: -10px; right: 10px;
+  background: var(--terra); color: white;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.05em;
+  padding: 3px 10px; border-radius: 20px;
+}
+
+/* Chart */
+.chart-card {
+  background: var(--white); border: 1.5px solid var(--line);
+  border-radius: 16px; padding: 24px 20px; margin-bottom: 20px;
+}
+.chart-header {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; margin-bottom: 20px;
+}
+.chart-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px; font-weight: 700; color: var(--ink);
+}
+.chart-header p { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.chart-legend { display: flex; gap: 14px; flex-shrink: 0; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+.chart-box { height: 190px; position: relative; }
+
+/* Milestones timeline */
+.timeline { margin-bottom: 20px; }
+.tl-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 14px;
+}
+.tl-items { display: flex; flex-direction: column; gap: 0; }
+.tl-item {
+  display: flex; gap: 16px; align-items: flex-start;
+  padding: 14px 0; border-bottom: 1px solid var(--line);
+  position: relative;
+}
+.tl-item:last-child { border-bottom: none; }
+.tl-day {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px; font-weight: 700; color: var(--forest);
+  width: 56px; flex-shrink: 0; padding-top: 1px;
+}
+.tl-body { flex: 1; }
+.tl-body b { font-size: 14px; font-weight: 600; display: block; }
+.tl-body span { font-size: 12px; color: var(--muted); }
+
+/* Macros */
+.macros-card {
+  background: var(--ink); border-radius: 16px;
+  padding: 24px 20px; margin-bottom: 20px; color: white;
+}
+.macros-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px; margin-bottom: 4px;
+}
+.macros-card p { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 20px; }
+.macro-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 16px; }
+.macro-cell {
+  background: rgba(255,255,255,0.06); border-radius: 12px;
+  padding: 16px 12px; text-align: center;
+}
+.macro-pct {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px; font-weight: 900; line-height: 1;
+}
+.macro-label { font-size: 10px; color: rgba(255,255,255,0.4); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 3px; }
+.macro-g { font-size: 13px; font-weight: 600; margin-top: 5px; }
+.cal-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 16px; background: rgba(255,255,255,0.06); border-radius: 10px;
+}
+.cal-row span { font-size: 13px; color: rgba(255,255,255,0.45); }
+.cal-row strong {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; color: var(--sage-light);
+}
+
+/* Social proof */
+.social-strip {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 18px;
+  background: var(--terra-light); border-radius: 14px;
+  margin-bottom: 20px;
+}
+.avatars { display: flex; }
+.av {
+  width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--cream);
+  background: var(--sage); color: white; font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-left: -7px;
+}
+.av:first-child { margin-left: 0; background: var(--forest); }
+.social-txt { font-size: 13px; color: var(--ink); line-height: 1.45; }
+.social-txt strong { font-weight: 700; }
+
+/* Urgency */
+.urgency {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; background: #FFF8EE;
+  border: 1px solid #F4D89A; border-radius: 12px;
+  font-size: 13px; color: #92400E; margin-bottom: 20px;
+}
+
+/* Price CTA */
+.price-block { margin-bottom: 8px; }
+.price-line { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.price-big { font-family: 'Playfair Display', serif; font-size: 44px; font-weight: 900; color: var(--ink); line-height: 1; }
+.price-old { font-size: 18px; color: var(--muted); text-decoration: line-through; }
+.price-save { background: var(--terra); color: white; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; }
+
+.btn-buy {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 18px 24px;
+  background: var(--terra); color: white;
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 16px; font-weight: 700;
+  border: none; border-radius: 14px; cursor: pointer;
+  text-decoration: none; transition: background 0.15s, transform 0.1s;
+  letter-spacing: 0.01em; margin-bottom: 10px;
+}
+.btn-buy:hover { background: #A84E22; }
+.btn-buy:active { transform: scale(0.99); }
+
+.trust-row {
+  display: flex; justify-content: center; gap: 20px;
+  font-size: 12px; color: var(--muted); margin-bottom: 16px;
+}
+.trust-row span { display: flex; align-items: center; gap: 4px; }
+
+.guarantee-block {
+  display: flex; gap: 12px; padding: 16px;
+  background: var(--white); border: 1px solid var(--line);
+  border-radius: 14px; margin-top: 14px;
+}
+.guarantee-block .icon { font-size: 24px; flex-shrink: 0; }
+.guarantee-block p { font-size: 13px; color: var(--muted); line-height: 1.55; }
+.guarantee-block p strong { color: var(--ink); display: block; margin-bottom: 2px; }
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.fade-up { animation: fadeUp 0.45s ease both; }
+.fade-up:nth-child(2) { animation-delay: 0.08s; }
+.fade-up:nth-child(3) { animation-delay: 0.16s; }
+.fade-up:nth-child(4) { animation-delay: 0.24s; }
+.fade-up:nth-child(5) { animation-delay: 0.32s; }
+.fade-up:nth-child(6) { animation-delay: 0.40s; }
+.fade-up:nth-child(7) { animation-delay: 0.48s; }
+
+@media(max-width:380px){
+  .ba-num { font-size: 28px; }
+  .opts-2col { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="top-bar" id="topbar">
+  <div class="wordmark">Ketify</div>
+  <div class="progress-rail"><div class="progress-car" id="prog"></div></div>
+  <div class="step-counter" id="prog-label">1 / 12</div>
+</header>
+
+<!-- ════════════════ STEP 1 — GOAL ════════════════ -->
+<section class="screen active" id="s1">
+  <div class="q-wrap">
+    <div class="q-eyebrow">Your goal</div>
+    <h1 class="q-title">What do you most want to change?</h1>
+    <p class="q-hint">We'll build everything around this — not around a generic template.</p>
+    <div class="opts">
+      <button class="opt" onclick="pick(this,'goal','weight'); unlock('b1')">
+        <span class="opt-em">⚡</span>
+        <span class="opt-body"><b>Lose weight</b><small>Burn fat, feel lighter in your body</small></span>
+        <span class="opt-dot"></span>
+      </button>
+      <button class="opt" onclick="pick(this,'goal','sugar'); unlock('b1')">
+        <span class="opt-em">🩸</span>
+        <span class="opt-body"><b>Control blood sugar</b><small>Reduce cravings, steady energy all day</small></span>
+        <span class="opt-dot"></span>
+      </button>
+      <button class="opt" onclick="pick(this,'goal','energy'); unlock('b1')">
+        <span class="opt-em">✦</span>
+        <span class="opt-body"><b>More energy & focus</b><small>No more afternoon crashes</small></span>
+        <span class="opt-dot"></span>
+      </button>
+      <button class="opt" onclick="pick(this,'goal','inflammation'); unlock('b1')">
+        <span class="opt-em">🌿</span>
+        <span class="opt-body"><b>Less inflammation</b><small>Joints, bloating, skin, fatigue</small></span>
+        <span class="opt-dot"></span>
+      </button>
+    </div>
+  </div>
+  <div class="sticky-cta">
+    <button class="btn" id="b1" onclick="go(2)" disabled>Continue</button>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 2 — SEX ════════════════ -->
+<section class="screen" id="s2">
+  <div class="q-wrap">
+    <div class="q-eyebrow">About you</div>
+    <h1 class="q-title">Biological sex?</h1>
+    <p class="q-hint">Metabolism and calorie needs differ significantly — this affects your macros.</p>
+    <div class="opts-2col">
+      <button class="opt" onclick="pick(this,'sex','f'); go(3)">
+        <span class="opt-em">♀️</span>
+        <span class="opt-body"><b>Female</b></span>
+      </button>
+      <button class="opt" onclick="pick(this,'sex','m'); go(3)">
+        <span class="opt-em">♂️</span>
+        <span class="opt-body"><b>Male</b></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 3 — AGE ════════════════ -->
+<section class="screen" id="s3">
+  <div class="q-wrap">
+    <div class="q-eyebrow">About you</div>
+    <h1 class="q-title">Age range?</h1>
+    <p class="q-hint">Ketone production, hormone levels, and recovery all shift with age.</p>
+    <div class="opts">
+      <button class="opt" onclick="pick(this,'age','25'); go(4)"><span class="opt-body"><b>18–29</b></span></button>
+      <button class="opt" onclick="pick(this,'age','35'); go(4)"><span class="opt-body"><b>30–39</b></span></button>
+      <button class="opt" onclick="pick(this,'age','45'); go(4)"><span class="opt-body"><b>40–49</b></span></button>
+      <button class="opt" onclick="pick(this,'age','55'); go(4)"><span class="opt-body"><b>50–59</b></span></button>
+      <button class="opt" onclick="pick(this,'age','65'); go(4)"><span class="opt-body"><b>60+</b></span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 4 — HEIGHT / WEIGHT ════════════════ -->
+<section class="screen" id="s4">
+  <div class="q-wrap">
+    <div class="q-eyebrow">Your body</div>
+    <h1 class="q-title">Height and current weight?</h1>
+    <p class="q-hint">Your caloric target depends on these numbers — no vague estimates.</p>
+    <div class="inp-group">
+      <div class="inp-row">
+        <div class="inp-wrap">
+          <label>Height</label>
+          <div class="inp-wrap-rel">
+            <input type="number" class="inp" id="hft" placeholder="5" min="3" max="7" inputmode="numeric" style="padding-right:42px" oninput="chk4()">
+            <span class="inp-unit">ft</span>
+          </div>
+        </div>
+        <div class="inp-wrap">
+          <label>&nbsp;</label>
+          <div class="inp-wrap-rel">
+            <input type="number" class="inp" id="hin" placeholder="7" min="0" max="11" inputmode="numeric" style="padding-right:42px" oninput="chk4()">
+            <span class="inp-unit">in</span>
+          </div>
+        </div>
+      </div>
+      <div class="inp-wrap">
+        <label>Current weight</label>
+        <div class="inp-wrap-rel">
+          <input type="number" class="inp" id="wcur" placeholder="185" min="80" max="600" inputmode="numeric" style="padding-right:48px" oninput="chk4()">
+          <span class="inp-unit">lbs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sticky-cta">
+    <button class="btn" id="b4" onclick="go(5)" disabled>Continue</button>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 5 — GOAL WEIGHT ════════════════ -->
+<section class="screen" id="s5">
+  <div class="q-wrap">
+    <div class="q-eyebrow">Your goal</div>
+    <h1 class="q-title">What weight are you aiming for?</h1>
+    <p class="q-hint">We'll show you a realistic timeline — not a fantasy number.</p>
+    <div class="inp-wrap">
+      <label>Goal weight</label>
+      <div class="inp-wrap-rel">
+        <input type="number" class="inp" id="wgoal" placeholder="160" min="80" max="500" inputmode="numeric" style="padding-right:48px" oninput="chk5()">
+        <span class="inp-unit">lbs</span>
+      </div>
+    </div>
+  </div>
+  <div class="sticky-cta">
+    <button class="btn" id="b5" onclick="go(6)" disabled>Continue</button>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 6 — ACTIVITY ════════════════ -->
+<section class="screen" id="s6">
+  <div class="q-wrap">
+    <div class="q-eyebrow">Your lifestyle</div>
+    <h1 class="q-title">How active are you day-to-day?</h1>
+    <div class="opts">
+      <button class="opt" onclick="pick(this,'act',1.2); go(7)">
+        <span class="opt-em">🪑</span>
+        <span class="opt-body"><b>Mostly sitting</b><small>Desk job, little movement</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'act',1.375); go(7)">
+        <span class="opt-em">🚶</span>
+        <span class="opt-body"><b>Light on my feet</b><small>Some walks, occasional exercise</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'act',1.55); go(7)">
+        <span class="opt-em">🏃</span>
+        <span class="opt-body"><b>Moderately active</b><small>Exercise 3–4× a week</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'act',1.725); go(7)">
+        <span class="opt-em">🏋️</span>
+        <span class="opt-body"><b>Very active</b><small>Daily training or physical work</small></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 7 — EXPERIENCE ════════════════ -->
+<section class="screen" id="s7">
+  <div class="q-wrap">
+    <div class="q-eyebrow">Your experience</div>
+    <h1 class="q-title">Have you done keto before?</h1>
+    <div class="opts">
+      <button class="opt" onclick="pick(this,'exp','none'); go(8)">
+        <span class="opt-body"><b>Never tried it</b><small>Starting from zero</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'exp','tried'); go(8)">
+        <span class="opt-body"><b>Tried it, didn't stick</b><small>Felt confusing or too restrictive</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'exp','sometimes'); go(8)">
+        <span class="opt-body"><b>I do it on and off</b><small>Inconsistent, looking for structure</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'exp','regular'); go(8)">
+        <span class="opt-body"><b>I practice regularly</b><small>Want to optimize my approach</small></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 8 — OBSTACLE ════════════════ -->
+<section class="screen" id="s8">
+  <div class="q-wrap">
+    <div class="q-eyebrow">Your challenges</div>
+    <h1 class="q-title">What trips you up most?</h1>
+    <p class="q-hint">Your plan will be built to solve exactly this.</p>
+    <div class="opts">
+      <button class="opt" onclick="pick(this,'block','food'); go(9)">
+        <span class="opt-em">🤔</span>
+        <span class="opt-body"><b>I don't know what to eat</b></span>
+      </button>
+      <button class="opt" onclick="pick(this,'block','hunger'); go(9)">
+        <span class="opt-em">😩</span>
+        <span class="opt-body"><b>I get hungry and give up</b></span>
+      </button>
+      <button class="opt" onclick="pick(this,'block','time'); go(9)">
+        <span class="opt-em">⏰</span>
+        <span class="opt-body"><b>No time for complicated cooking</b></span>
+      </button>
+      <button class="opt" onclick="pick(this,'block','confused'); go(9)">
+        <span class="opt-em">😵</span>
+        <span class="opt-body"><b>Confused about what's actually allowed</b></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 9 — RESTRICTIONS ════════════════ -->
+<section class="screen" id="s9">
+  <div class="q-wrap">
+    <div class="q-eyebrow">Food preferences</div>
+    <h1 class="q-title">Any foods you avoid?</h1>
+    <div class="opts">
+      <button class="opt" onclick="pick(this,'diet','none'); go(10)">
+        <span class="opt-body"><b>None — I eat everything</b></span>
+      </button>
+      <button class="opt" onclick="pick(this,'diet','nodairy'); go(10)">
+        <span class="opt-body"><b>No dairy</b></span>
+      </button>
+      <button class="opt" onclick="pick(this,'diet','nogluten'); go(10)">
+        <span class="opt-body"><b>No gluten</b></span>
+      </button>
+      <button class="opt" onclick="pick(this,'diet','fish'); go(10)">
+        <span class="opt-body"><b>No red meat</b><small>Fish and chicken are fine</small></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 10 — MEALS ════════════════ -->
+<section class="screen" id="s10">
+  <div class="q-wrap">
+    <div class="q-eyebrow">Your routine</div>
+    <h1 class="q-title">How many meals a day works for you?</h1>
+    <div class="opts">
+      <button class="opt" onclick="pick(this,'meals','2'); go(11)">
+        <span class="opt-body"><b>2 meals</b><small>Intermittent fasting style</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'meals','3'); go(11)">
+        <span class="opt-body"><b>3 meals</b><small>Breakfast, lunch, dinner</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'meals','4'); go(11)">
+        <span class="opt-body"><b>3 meals + 1 snack</b><small>I need something in between</small></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 11 — BUDGET ════════════════ -->
+<section class="screen" id="s11">
+  <div class="q-wrap">
+    <div class="q-eyebrow">Your lifestyle</div>
+    <h1 class="q-title">How do you shop for groceries?</h1>
+    <div class="opts">
+      <button class="opt" onclick="pick(this,'budget','low'); go(12)">
+        <span class="opt-em">💰</span>
+        <span class="opt-body"><b>Budget-friendly</b><small>Simple ingredients, keep it cheap</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'budget','mid'); go(12)">
+        <span class="opt-em">🛒</span>
+        <span class="opt-body"><b>Moderate</b><small>Quality matters, but I'm not extravagant</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'budget','high'); go(12)">
+        <span class="opt-em">🌿</span>
+        <span class="opt-body"><b>No restrictions</b><small>I buy the best I can find</small></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ STEP 12 — COMMITMENT ════════════════ -->
+<section class="screen" id="s12">
+  <div class="q-wrap">
+    <div class="q-eyebrow">Last question</div>
+    <h1 class="q-title">Be honest — how serious are you about making this work?</h1>
+    <p class="q-hint">No judgment. Your plan adapts to your real life, not an ideal one.</p>
+    <div class="opts">
+      <button class="opt" onclick="pick(this,'commit','all'); startLoad()">
+        <span class="opt-em">🔥</span>
+        <span class="opt-body"><b>All in</b><small>I'm ready to commit fully</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'commit','most'); startLoad()">
+        <span class="opt-em">💪</span>
+        <span class="opt-body"><b>Pretty serious</b><small>I'll follow it most of the time</small></span>
+      </button>
+      <button class="opt" onclick="pick(this,'commit','building'); startLoad()">
+        <span class="opt-em">🌱</span>
+        <span class="opt-body"><b>Building the habit</b><small>I need structure to stay consistent</small></span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ LOADING ════════════════ -->
+<section class="screen" id="screen-loading">
+  <div class="ld-inner">
+    <div class="ld-wordmark">Ketify</div>
+    <div class="ld-pct" id="ld-pct">0%</div>
+    <div class="ld-track"><div class="ld-fill" id="ld-bar"></div></div>
+    <p class="ld-msg" id="ld-msg">Reading your profile...</p>
+  </div>
+</section>
+
+<!-- ════════════════ RESULT ════════════════ -->
+<section class="screen" id="screen-result">
+  <div class="res-wrap">
+
+    <div class="res-hero fade-up">
+      <div class="res-tag">Your plan is ready</div>
+      <h2 class="res-h1">You could reach your goal in <em id="r-weeks">8 weeks</em></h2>
+      <p class="res-sub">Here's what following your personalized keto plan looks like — based on your exact numbers, not averages.</p>
+    </div>
+
+    <div class="ba-grid fade-up">
+      <div class="ba-card before">
+        <div class="ba-eyebrow">📍 Right now</div>
+        <div class="ba-num" id="r-wnow">185 <span class="ba-unit">lbs</span></div>
+        <div class="ba-detail" id="r-bmi-now">BMI 27.4 · Overweight</div>
+      </div>
+      <div class="ba-card after">
+        <div class="ba-pill">Day 28</div>
+        <div class="ba-eyebrow">🎯 On your plan</div>
+        <div class="ba-num" id="r-w28">172 <span class="ba-unit">lbs</span></div>
+        <div class="ba-detail" id="r-bmi-28">BMI 25.5 · Near healthy</div>
+      </div>
+    </div>
+
+    <div class="chart-card fade-up">
+      <div class="chart-header">
+        <div>
+          <h3>Your 28-day projection</h3>
+          <p>Estimated weight trajectory on your keto plan</p>
+        </div>
+        <div class="chart-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:var(--forest)"></div>With plan</div>
+          <div class="leg-item"><div class="leg-dot" style="background:var(--line); border:1px dashed #bbb"></div>Without</div>
+        </div>
+      </div>
+      <div class="chart-box"><canvas id="wChart"></canvas></div>
+    </div>
+
+    <div class="timeline fade-up">
+      <div class="tl-title">What to expect, week by week</div>
+      <div class="tl-items">
+        <div class="tl-item">
+          <div class="tl-day">Days 1–3</div>
+          <div class="tl-body"><b>Transitioning into ketosis</b><span>Your body switches fuel sources. Some fatigue is normal and temporary.</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-day">Day 7</div>
+          <div class="tl-body"><b id="r-d7">Est. −4.5 lbs</b><span>Rapid early weight drop — mostly water + early fat burning.</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-day">Day 14</div>
+          <div class="tl-body"><b id="r-d14">Est. −7 lbs</b><span>Fat burning fully active. Cravings significantly reduced.</span></div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-day">Day 28</div>
+          <div class="tl-body"><b id="r-d28">Est. −13 lbs</b><span>Visible results. Sustainable momentum built.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="macros-card fade-up">
+      <h3>Your daily macro target</h3>
+      <p id="r-cal-sub">Personalized to your body and activity level</p>
+      <div class="macro-row">
+        <div class="macro-cell">
+          <div class="macro-pct" style="color:#6B9E78">70%</div>
+          <div class="macro-label">Fat</div>
+          <div class="macro-g" id="r-fat" style="color:#6B9E78">116g</div>
+        </div>
+        <div class="macro-cell">
+          <div class="macro-pct" style="color:#F4A261">25%</div>
+          <div class="macro-label">Protein</div>
+          <div class="macro-g" id="r-pro" style="color:#F4A261">103g</div>
+        </div>
+        <div class="macro-cell">
+          <div class="macro-pct" style="color:#A78BFA">5%</div>
+          <div class="macro-label">Net carbs</div>
+          <div class="macro-g" id="r-carbs" style="color:#A78BFA">21g</div>
+        </div>
+      </div>
+      <div class="cal-row">
+        <span>Daily caloric target</span>
+        <strong id="r-cal">1,650 kcal</strong>
+      </div>
+    </div>
+
+    <div class="social-strip fade-up">
+      <div class="avatars">
+        <div class="av">S</div><div class="av" style="background:#6B9E78">M</div>
+        <div class="av" style="background:#2E5A40">J</div><div class="av" style="background:#40916C">A</div>
+      </div>
+      <div class="social-txt"><strong>11,200+ people</strong> are following a Ketify plan right now. 87% reported visible results within the first two weeks.</div>
+    </div>
+
+    <div class="urgency fade-up">
+      ⏳ <span>This pricing expires in <strong id="r-timer">23:47</strong> — your spot is held.</span>
+    </div>
+
+    <div class="price-block fade-up">
+      <div class="price-line">
+        <div class="price-big">$9</div>
+        <div class="price-old">$29</div>
+        <div class="price-save">69% off</div>
+      </div>
+
+      <!-- ⚠️ REPLACE THIS URL WITH YOUR LEMON SQUEEZY CHECKOUT LINK -->
+      <a id="buy-btn" href="#" class="btn-buy" onclick="handleBuy(event)">
+        Get My 28-Day Keto Plan →
+      </a>
+
+      <div class="trust-row">
+        <span>🔒 Secure checkout</span>
+        <span>📩 Instant access</span>
+        <span>💳 One-time payment</span>
+      </div>
+
+      <div class="guarantee-block">
+        <div class="icon">🛡️</div>
+        <p><strong>7-day money-back guarantee</strong>If the plan isn't working for you after 7 days, email us and we'll refund every penny. No forms, no hassle.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+// ─── State ───
+const A = {};
+let cur = 1;
+const TOTAL = 12;
+
+// ─── Navigation ───
+function go(n) {
+  document.getElementById('s'+cur)?.classList.remove('active');
+  document.getElementById('s'+n)?.classList.remove('active');
+  // hide current
+  const curEl = document.getElementById('s'+cur) || document.getElementById('screen-loading') || document.getElementById('screen-result');
+  if(curEl) curEl.classList.remove('active');
+  cur = n;
+  const next = document.getElementById('s'+n);
+  if(next){ next.classList.add('active'); window.scrollTo(0,0); updProg(); }
+}
+
+function updProg(){
+  const p = Math.round(cur/TOTAL*100);
+  document.getElementById('prog').style.width = p+'%';
+  document.getElementById('prog-label').textContent = cur+' / '+TOTAL;
+}
+
+// ─── Option pick ───
+function pick(el, key, val){
+  el.closest('.opts, .opts-2col').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  el.classList.add('sel');
+  A[key] = val;
+}
+function unlock(id){ document.getElementById(id).disabled = false; }
+
+// ─── Input validation ───
+function chk4(){
+  const ok = document.getElementById('hft').value && document.getElementById('hin').value !== '' && document.getElementById('wcur').value;
+  document.getElementById('b4').disabled = !ok;
+  if(ok){ A.hft=+document.getElementById('hft').value; A.hin=+document.getElementById('hin').value||0; A.wc=+document.getElementById('wcur').value; }
+}
+function chk5(){
+  const ok = document.getElementById('wgoal').value;
+  document.getElementById('b5').disabled = !ok;
+  if(ok) A.wg=+document.getElementById('wgoal').value;
+}
+
+// ─── Loading ───
+function startLoad(){
+  document.getElementById('s12').classList.remove('active');
+  document.getElementById('screen-loading').classList.add('active');
+  document.getElementById('topbar').style.display='none';
+  window.scrollTo(0,0);
+
+  const msgs = [
+    'Reading your profile…',
+    'Calculating your metabolic rate…',
+    'Building your meal structure…',
+    'Calibrating your macro split…',
+    'Generating weight projection…',
+    'Putting it all together…'
+  ];
+
+  let p=0, mi=0;
+  const iv = setInterval(()=>{
+    p += Math.random()*10+4;
+    if(p>100) p=100;
+    document.getElementById('ld-bar').style.width = p+'%';
+    document.getElementById('ld-pct').textContent = Math.round(p)+'%';
+    const ni = Math.min(Math.floor(p/18), msgs.length-1);
+    if(ni!==mi){ mi=ni;
+      const el=document.getElementById('ld-msg');
+      el.style.opacity='0';
+      setTimeout(()=>{ el.textContent=msgs[mi]; el.style.opacity='1'; },250);
+    }
+    if(p>=100){ clearInterval(iv); setTimeout(showResult,700); }
+  }, 220);
+}
+
+// ─── Result calculations ───
+function showResult(){
+  const loading = document.getElementById('screen-loading');
+  const result  = document.getElementById('screen-result');
+
+  // ── 1. Calculate everything first (before any DOM changes) ──
+  const w = A.wc||185, wg = A.wg||160;
+  const hft = A.hft||5, hin = A.hin||7;
+  const sex = A.sex||'f', age = +(A.age||35), act = +(A.act||1.375);
+  const hIn = hft*12+hin, hCm = hIn*2.54, wKg = w*0.453592;
+  const bmr = sex==='f'
+    ? 10*wKg + 6.25*hCm - 5*age - 161
+    : 10*wKg + 6.25*hCm - 5*age + 5;
+  const tdee = bmr*act;
+  const kcal = Math.round(tdee-550);
+  const fat_g = Math.round(kcal*0.70/9);
+  const pro_g = Math.round(kcal*0.25/4);
+  const car_g = Math.round(kcal*0.05/4);
+  const bmi = (wKg/((hCm/100)**2)).toFixed(1);
+  const bmiCat = bmi<18.5?'Underweight':bmi<25?'Healthy weight':bmi<30?'Overweight':'Obese';
+  const dpd = 550/3500;
+  const w28 = Math.max(w-dpd*28, wg);
+  const wKg28 = w28*0.453592;
+  const bmi28 = (wKg28/((hCm/100)**2)).toFixed(1);
+  const bmi28c = bmi28<25?'Healthy range':bmi28<30?'Near healthy':'Improving';
+  const weeksToGoal = Math.ceil((w-wg)/(dpd*7));
+  const lost28 = (dpd*28).toFixed(1);
+  A._cal=kcal; A._fat=fat_g; A._pro=pro_g; A._car=car_g;
+  A._w28=Math.round(w28); A._bmi=bmi; A._weeks=weeksToGoal;
+
+  // ── 2. Fade out loading screen ──
+  loading.classList.add('fading');
+
+  // ── 3. After fade: scroll to top → show result → fill DOM → draw chart ──
+  setTimeout(() => {
+    loading.classList.remove('active','fading');
+
+    // Hard-reset scroll position BEFORE result is visible
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    window.scrollTo(0, 0);
+
+    result.classList.add('active');
+
+    // Two rAF ticks: ensure browser has painted at scroll=0 before opacity starts
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+
+      result.classList.add('visible');
+
+      // Fill all result values
+      document.getElementById('r-weeks').textContent = weeksToGoal+' weeks';
+      document.getElementById('r-wnow').innerHTML = w+' <span class="ba-unit">lbs</span>';
+      document.getElementById('r-w28').innerHTML = Math.round(w28)+' <span class="ba-unit">lbs</span>';
+      document.getElementById('r-bmi-now').textContent = 'BMI '+bmi+' · '+bmiCat;
+      document.getElementById('r-bmi-28').textContent = 'BMI '+bmi28+' · '+bmi28c;
+      document.getElementById('r-fat').textContent = fat_g+'g';
+      document.getElementById('r-pro').textContent = pro_g+'g';
+      document.getElementById('r-carbs').textContent = car_g+'g';
+      document.getElementById('r-cal').textContent = kcal.toLocaleString()+' kcal';
+      document.getElementById('r-cal-sub').textContent = 'TDEE '+Math.round(tdee)+' kcal · 550 kcal daily deficit';
+      document.getElementById('r-d7').textContent = 'Est. −'+(dpd*7).toFixed(1)+' lbs in week 1';
+      document.getElementById('r-d14').textContent = 'Est. −'+(dpd*14).toFixed(1)+' lbs by day 14';
+      document.getElementById('r-d28').textContent = 'Est. −'+lost28+' lbs by day 28';
+
+      buildChart(w, w28, dpd);
+    }));
+  }, 520);
+} // end showResult
+
+function buildChart(sw, ew, dpd){
+  const labels=[], withP=[], withoutP=[];
+  // Every single day 0→28 for full interactivity
+  for(let d=0;d<=28;d++){
+    labels.push(d===0?'Start':'Day '+d);
+    let wp = d<=5 ? sw - d*1.3 : sw - 5*1.3 - (d-5)*dpd*0.85;
+    withP.push(+wp.toFixed(2));
+    withoutP.push(+(sw + d*0.04).toFixed(2));
+  }
+
+  // Crosshair plugin — draws vertical line on hover
+  const crosshairPlugin = {
+    id: 'crosshair',
+    afterDraw(chart) {
+      if (!chart._activeElements || chart._activeElements.length === 0) return;
+      const { ctx, chartArea: { top, bottom } } = chart;
+      const x = chart._activeElements[0].element.x;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(x, top);
+      ctx.lineTo(x, bottom);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(28,56,41,0.25)';
+      ctx.setLineDash([4,3]);
+      ctx.stroke();
+      ctx.restore();
+    }
+  };
+
+  const ctx = document.getElementById('wChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    plugins: [crosshairPlugin],
+    data: {
+      labels,
+      datasets: [
+        {
+          label: 'On your plan',
+          data: withP,
+          borderColor: '#1C3829',
+          backgroundColor: 'rgba(28,56,41,0.06)',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: '#1C3829',
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 2,
+          fill: true,
+          tension: 0.45
+        },
+        {
+          label: 'Without a plan',
+          data: withoutP,
+          borderColor: '#C8C3B8',
+          borderWidth: 1.5,
+          borderDash: [5, 4],
+          pointRadius: 0,
+          pointHoverRadius: 4,
+          pointHoverBackgroundColor: '#C8C3B8',
+          fill: false,
+          tension: 0.3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1A1A16',
+          titleColor: '#fff',
+          bodyColor: '#A8C9B0',
+          borderColor: 'rgba(255,255,255,0.08)',
+          borderWidth: 1,
+          padding: 12,
+          titleFont: { family: 'Playfair Display', size: 13, weight: '700' },
+          bodyFont: { family: 'Instrument Sans', size: 12 },
+          callbacks: {
+            title: (items) => items[0].label,
+            label: (c) => {
+              const lost = (sw - c.parsed.y).toFixed(1);
+              if(c.datasetIndex === 0) {
+                return `  With Ketify: ${c.parsed.y.toFixed(1)} lbs  (−${lost} lbs)`;
+              }
+              return `  Without plan:  ${c.parsed.y.toFixed(1)} lbs`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          border: { display: false },
+          ticks: {
+            color: '#A0A09A',
+            font: { size: 10, family: 'Instrument Sans' },
+            maxTicksLimit: 8,
+            maxRotation: 0
+          }
+        },
+        y: {
+          grid: { color: '#EDE8DC', lineWidth: 1 },
+          border: { display: false },
+          ticks: {
+            color: '#A0A09A',
+            font: { size: 10, family: 'Instrument Sans' },
+            callback: v => v + ' lb'
+          }
+        }
+      }
+    }
+  });
+}
+
+// ─── Buy button — passes params to Lemon Squeezy ───
+function handleBuy(e){
+  e.preventDefault();
+  // Build query string with all relevant answers
+  const params = new URLSearchParams({
+    w: A.wc||185,
+    wg: A.wg||160,
+    hft: A.hft||5,
+    hin: A.hin||7,
+    sex: A.sex||'f',
+    age: A.age||35,
+    act: A.act||1.375,
+    meals: A.meals||'3',
+    diet: A.diet||'none',
+    budget: A.budget||'mid',
+    cal: A._cal||1650,
+    fat: A._fat||116,
+    pro: A._pro||103,
+    car: A._car||21,
+    w28: A._w28||172,
+    weeks: A._weeks||8
+  });
+
+  // ⚠️ REPLACE WITH YOUR LEMON SQUEEZY CHECKOUT LINK
+  // The ?redirect= param tells LS where to send the user after payment
+  // Your plan page URL goes there, with the quiz params appended
+  const PLAN_URL = 'https://ketify.vercel.app/plan?' + params.toString();
+  const LS_CHECKOUT = 'https://YOUR-STORE.lemonsqueezy.com/checkout/buy/YOUR-PRODUCT-ID?redirect_url=' + encodeURIComponent(PLAN_URL);
+
+  window.location.href = LS_CHECKOUT;
+}
+
+// ─── Countdown ───
+let secs = 23*60+47;
+setInterval(()=>{
+  if(--secs<0) secs=0;
+  const m=String(Math.floor(secs/60)).padStart(2,'0');
+  const s=String(secs%60).padStart(2,'0');
+  const el=document.getElementById('r-timer');
+  if(el) el.textContent=m+':'+s;
+},1000);
+</script>
+</body>
+</html>
